@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>WOLF APP</title>
+</head>
+<body>
+
+<h1>🚀 WOLF APP</h1>
+
+<button onclick="login()">Login</button>
+<button onclick="guardar()">Guardar dato</button>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDPVeljA3QfaI4JXt-1BQjZfPNphYfkhtE",
+  authDomain: "wilfrido-app.firebaseapp.com",
+  projectId: "wilfrido-app",
+  storageBucket: "wilfrido-app.firebasestorage.app",
+  messagingSenderId: "990867661134",
+  appId: "1:990867661134:web:fc4061a213895564663e1f"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+window.login = function() {
+  signInAnonymously(auth)
+    .then(() => alert("Login OK"))
+    .catch(console.error);
+};
+
+window.guardar = async function() {
+  await addDoc(collection(db, "test"), {
+    mensaje: "Hola desde iPhone 🚀"
+  });
+  alert("Guardado en Firebase");
+};
+</script>
+
+</body>
+</html>
