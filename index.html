@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WOLF IDENTITY</title>
+<title>DecisionOS</title>
 
 <style>
 body {
-  font-family: Arial;
   background: #0f172a;
   color: white;
+  font-family: Arial;
   padding: 20px;
 }
 
@@ -20,9 +20,9 @@ h1 {
 input {
   width: 100%;
   padding: 12px;
-  margin-top: 10px;
   border-radius: 8px;
   border: none;
+  margin-top: 10px;
 }
 
 button {
@@ -31,35 +31,16 @@ button {
   border: none;
   border-radius: 8px;
   background: #22c55e;
-  color: black;
-  font-weight: bold;
   width: 100%;
-}
-
-button:hover {
-  opacity: 0.9;
+  font-weight: bold;
 }
 
 #resultado {
   margin-top: 20px;
-  font-weight: bold;
   background: #1e293b;
-  padding: 10px;
+  padding: 15px;
   border-radius: 8px;
-}
-
-ul {
-  margin-top: 20px;
-  padding: 0;
-}
-
-li {
-  list-style: none;
-  background: #1e293b;
-  padding: 10px;
-  margin-bottom: 8px;
-  border-radius: 8px;
-  font-size: 14px;
+  white-space: pre-line;
 }
 </style>
 
@@ -67,126 +48,76 @@ li {
 
 <body>
 
-<h1>🐺 WOLF IDENTITY</h1>
-<p>Construye tu versión futura</p>
+<h1>🧠 DecisionOS</h1>
+<p>Tu motor de decisiones inteligente</p>
 
-<button onclick="login()">Login</button>
+<input id="pregunta" placeholder="Ej: ¿Debería renunciar a mi trabajo?" />
 
-<input id="pensamiento" placeholder="Escribe quién quieres ser..." />
+<button onclick="analizar()">Analizar decisión</button>
 
-<button onclick="guardar()">Guardar identidad</button>
+<div id="resultado"></div>
 
-<h2>📡 Evolución</h2>
+<script>
+window.analizar = function () {
+  const pregunta = document.getElementById("pregunta").value.toLowerCase();
+  const resultado = document.getElementById("resultado");
 
-<ul id="lista"></ul>
-
-<h2>🔮 Tu futuro</h2>
-
-<button onclick="futuro()">Ver mi evolución futura</button>
-
-<p id="resultado"></p>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, addDoc, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDPVeljA3QfaI4JXt-1BQjZfPNphYfkhtE",
-  authDomain: "wilfrido-app.firebaseapp.com",
-  projectId: "wilfrido-app",
-  storageBucket: "wilfrido-app.firebasestorage.app",
-  messagingSenderId: "990867661134",
-  appId: "1:990867661134:web:fc4061a213895564663e1f"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// LOGIN
-window.login = function () {
-  signInAnonymously(auth)
-    .then(() => alert("Login OK"))
-    .catch(console.error);
-};
-
-// GUARDAR IDENTIDAD
-window.guardar = async function () {
-  const input = document.getElementById("pensamiento");
-  const texto = input.value;
-
-  if (!texto) {
-    alert("Escribe algo primero");
+  if (!pregunta) {
+    alert("Escribe una decisión");
     return;
   }
 
-  await addDoc(collection(db, "identidad"), {
-    texto: texto,
-    fecha: new Date().toISOString()
-  });
+  resultado.innerText = "Analizando...\n";
 
-  input.value = "";
-  cargarLista();
-};
+  let respuesta = "";
 
-// CARGAR HISTORIAL
-async function cargarLista() {
-  const lista = document.getElementById("lista");
-  lista.innerHTML = "";
+  if (pregunta.includes("renunciar") || pregunta.includes("trabajo")) {
+    respuesta =
+`⚠️ DECISIÓN: CAMBIO LABORAL
 
-  const q = query(collection(db, "identidad"), orderBy("fecha", "desc"));
-  const querySnapshot = await getDocs(q);
+Riesgo: Alto  
+Probabilidad de éxito: Media  
 
-  querySnapshot.forEach(doc => {
-    const data = doc.data();
+Recomendación:
+No renuncies sin ingresos alternativos.
+Primero valida estabilidad financiera.`;
+  } 
+  else if (pregunta.includes("negocio") || pregunta.includes("emprender")) {
+    respuesta =
+`🚀 DECISIÓN: EMPRENDER
 
-    const li = document.createElement("li");
-    li.innerText = `${new Date(data.fecha).toLocaleString()} → ${data.texto}`;
+Riesgo: Medio  
+Potencial: Alto  
 
-    lista.appendChild(li);
-  });
-}
+Recomendación:
+Valida el mercado antes de invertir fuerte.
+Empieza pequeño y escala.`;
+  } 
+  else if (pregunta.includes("dinero") || pregunta.includes("invertir")) {
+    respuesta =
+`💰 DECISIÓN: DINERO
 
-// ANALIZAR FUTURO
-window.futuro = async function () {
-  const resultado = document.getElementById("resultado");
-  resultado.innerText = "Analizando...";
+Riesgo: Variable  
 
-  try {
-    const querySnapshot = await getDocs(collection(db, "identidad"));
-
-    let textos = [];
-
-    querySnapshot.forEach(doc => {
-      textos.push(doc.data().texto.toLowerCase());
-    });
-
-    let analisis = "";
-
-    if (textos.length === 0) {
-      analisis = "Aún no hay datos. Empieza a construir tu identidad.";
-    }
-    else if (textos.join(" ").includes("millonario")) {
-      analisis = "Mentalidad de riqueza detectada. Alto potencial financiero si mantienes consistencia.";
-    }
-    else if (textos.length > 5) {
-      analisis = "Disciplina detectada. Estás construyendo una identidad sólida.";
-    }
-    else {
-      analisis = "Estás en fase inicial. Define mejor tu dirección.";
-    }
-
-    resultado.innerText = analisis;
-
-  } catch (error) {
-    console.error(error);
-    resultado.innerText = "Error al analizar";
+Recomendación:
+Diversifica. No pongas todo en una sola opción.
+Prioriza flujo antes que especulación.`;
   }
-};
+  else {
+    respuesta =
+`📊 ANÁLISIS GENERAL
 
-// AUTO LOAD
-cargarLista();
+Información insuficiente.
+
+Recomendación:
+Define mejor el contexto:
+- Riesgo
+- Tiempo
+- Objetivo`;
+  }
+
+  resultado.innerText += respuesta;
+};
 </script>
 
 </body>
