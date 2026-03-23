@@ -85,12 +85,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// LOGIN
 window.login = function () {
   signInAnonymously(auth)
     .then(() => alert("Login OK"))
     .catch(console.error);
 };
 
+// GUARDAR IDENTIDAD
 window.guardar = async function () {
   const texto = document.getElementById("pensamiento").value;
 
@@ -101,31 +103,48 @@ window.guardar = async function () {
 
   await addDoc(collection(db, "identidad"), {
     texto: texto,
-    fecha: new Date().toLocaleString()
+    fecha: new Date().toISOString()
   });
 
-  document.getElementById("pensamiento").value = "";
-
-  cargar();
+  alert("Guardado 🚀");
 };
 
-async function cargar() {
-  const lista = document.getElementById("lista");
-  lista.innerHTML = "";
+// ANALIZAR FUTURO
+window.futuro = async function () {
+  const resultado = document.getElementById("resultado");
+  resultado.innerText = "Analizando...";
 
-  const querySnapshot = await getDocs(collection(db, "identidad"));
+  try {
+    const querySnapshot = await getDocs(collection(db, "identidad"));
 
-  querySnapshot.forEach(doc => {
-    const data = doc.data();
+    let textos = [];
 
-    const li = document.createElement("li");
-    li.textContent = data.fecha + " → " + data.texto;
+    querySnapshot.forEach(doc => {
+      textos.push(doc.data().texto.toLowerCase());
+    });
 
-    lista.appendChild(li);
-  });
-}
+    let analisis = "";
 
-cargar();
+    if (textos.length === 0) {
+      analisis = "Aún no hay datos. Empieza a construir tu identidad.";
+    }
+    else if (textos.join(" ").includes("millonario")) {
+      analisis = "Mentalidad de riqueza detectada. Alto potencial financiero si mantienes consistencia.";
+    }
+    else if (textos.length > 5) {
+      analisis = "Disciplina detectada. Estás construyendo una identidad sólida.";
+    }
+    else {
+      analisis = "Estás en fase inicial. Define mejor tu dirección.";
+    }
+
+    resultado.innerText = analisis;
+
+  } catch (error) {
+    console.error(error);
+    resultado.innerText = "Error al analizar";
+  }
+};
 </script>
 
 </body>
