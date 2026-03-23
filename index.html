@@ -2,19 +2,72 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>WOLF APP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WOLF IDENTITY</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 28px;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: none;
+}
+
+button {
+  margin-top: 10px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  background: #22c55e;
+  color: black;
+  font-weight: bold;
+}
+
+ul {
+  margin-top: 20px;
+}
+
+li {
+  background: #1e293b;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+}
+</style>
+
 </head>
+
 <body>
 
-<h1>🚀 WOLF APP</h1>
+<h1>🐺 WOLF IDENTITY</h1>
+
+<p>Construye tu versión futura</p>
 
 <button onclick="login()">Login</button>
-<button onclick="guardar()">Guardar dato</button>
+
+<input id="pensamiento" placeholder="Escribe quién quieres ser..." />
+
+<button onclick="guardar()">Guardar identidad</button>
+
+<h2>📡 Evolución</h2>
+<ul id="lista"></ul>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getFirestore, addDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDPVeljA3QfaI4JXt-1BQjZfPNphYfkhtE",
@@ -29,20 +82,48 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-window.login = function() {
+window.login = function () {
   signInAnonymously(auth)
     .then(() => alert("Login OK"))
     .catch(console.error);
 };
 
-window.guardar = async function() {
-  await addDoc(collection(db, "test"), {
-    mensaje: "Hola desde iPhone 🚀"
+window.guardar = async function () {
+  const texto = document.getElementById("pensamiento").value;
+
+  if (!texto) {
+    alert("Escribe algo primero");
+    return;
+  }
+
+  await addDoc(collection(db, "identidad"), {
+    texto: texto,
+    fecha: new Date().toLocaleString()
   });
-  alert("Guardado en Firebase");
+
+  document.getElementById("pensamiento").value = "";
+
+  cargar();
 };
+
+async function cargar() {
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  const querySnapshot = await getDocs(collection(db, "identidad"));
+
+  querySnapshot.forEach(doc => {
+    const data = doc.data();
+
+    const li = document.createElement("li");
+    li.textContent = data.fecha + " → " + data.texto;
+
+    lista.appendChild(li);
+  });
+}
+
+cargar();
 </script>
 
 </body>
 </html>
-<!-- force deploy -->
