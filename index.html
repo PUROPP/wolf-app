@@ -27,23 +27,39 @@ input {
 
 button {
   margin-top: 10px;
-  padding: 10px 15px;
+  padding: 12px;
   border: none;
   border-radius: 8px;
   background: #22c55e;
   color: black;
   font-weight: bold;
+  width: 100%;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+#resultado {
+  margin-top: 20px;
+  font-weight: bold;
+  background: #1e293b;
+  padding: 10px;
+  border-radius: 8px;
 }
 
 ul {
   margin-top: 20px;
+  padding: 0;
 }
 
 li {
+  list-style: none;
   background: #1e293b;
   padding: 10px;
   margin-bottom: 8px;
   border-radius: 8px;
+  font-size: 14px;
 }
 </style>
 
@@ -52,7 +68,6 @@ li {
 <body>
 
 <h1>🐺 WOLF IDENTITY</h1>
-
 <p>Construye tu versión futura</p>
 
 <button onclick="login()">Login</button>
@@ -62,15 +77,19 @@ li {
 <button onclick="guardar()">Guardar identidad</button>
 
 <h2>📡 Evolución</h2>
-<h2>🔮 Tu futuro</h2>
-<button onclick="futuro()">Ver mi evolución futura</button>
-<p id="resultado"></p>
+
 <ul id="lista"></ul>
+
+<h2>🔮 Tu futuro</h2>
+
+<button onclick="futuro()">Ver mi evolución futura</button>
+
+<p id="resultado"></p>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
-import { getFirestore, addDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getFirestore, addDoc, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDPVeljA3QfaI4JXt-1BQjZfPNphYfkhtE",
@@ -94,7 +113,8 @@ window.login = function () {
 
 // GUARDAR IDENTIDAD
 window.guardar = async function () {
-  const texto = document.getElementById("pensamiento").value;
+  const input = document.getElementById("pensamiento");
+  const texto = input.value;
 
   if (!texto) {
     alert("Escribe algo primero");
@@ -106,8 +126,27 @@ window.guardar = async function () {
     fecha: new Date().toISOString()
   });
 
-  alert("Guardado 🚀");
+  input.value = "";
+  cargarLista();
 };
+
+// CARGAR HISTORIAL
+async function cargarLista() {
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  const q = query(collection(db, "identidad"), orderBy("fecha", "desc"));
+  const querySnapshot = await getDocs(q);
+
+  querySnapshot.forEach(doc => {
+    const data = doc.data();
+
+    const li = document.createElement("li");
+    li.innerText = `${new Date(data.fecha).toLocaleString()} → ${data.texto}`;
+
+    lista.appendChild(li);
+  });
+}
 
 // ANALIZAR FUTURO
 window.futuro = async function () {
@@ -145,6 +184,9 @@ window.futuro = async function () {
     resultado.innerText = "Error al analizar";
   }
 };
+
+// AUTO LOAD
+cargarLista();
 </script>
 
 </body>
